@@ -272,7 +272,7 @@ Game_System.prototype.replayWalkingBgm = function() {
 };
 
 Game_System.prototype.saveWalkingBgm2 = function() {
-	this._walkingBgm = $dataMap.bgm;
+    this._walkingBgm = $dataMap.bgm;
 };
 
 //-----------------------------------------------------------------------------
@@ -1695,8 +1695,8 @@ Game_Action.prototype.evalDamageFormula = function(target) {
         var v = $gameVariables._data;
         var sign = ([3, 4].contains(item.damage.type) ? -1 : 1);
         var value = Math.max(eval(item.damage.formula), 0) * sign;
-		if (isNaN(value)) value = 0;
-		return value;
+        if (isNaN(value)) value = 0;
+        return value;
     } catch (e) {
         return 0;
     }
@@ -2422,11 +2422,14 @@ Game_BattlerBase.prototype.paramPlus = function(paramId) {
 };
 
 Game_BattlerBase.prototype.paramMin = function(paramId) {
-    if (paramId === 1) {
-        return 0;   // MMP
-    } else {
-        return 1;
-    }
+    // if (paramId === 1) {
+    //     return 0;   // MMP
+    // } else {
+    //     return 1;
+    // }
+
+    // pieworkplace changed: min value of all params
+    return 0;
 };
 
 Game_BattlerBase.prototype.paramMax = function(paramId) {
@@ -3878,12 +3881,13 @@ Game_Actor.prototype.changeExp = function(exp, show) {
     this._exp[this._classId] = Math.max(exp, 0);
     var lastLevel = this._level;
     var lastSkills = this.skills();
-    while (!this.isMaxLevel() && this.currentExp() >= this.nextLevelExp()) {
-        this.levelUp();
-    }
-    while (this.currentExp() < this.currentLevelExp()) {
-        this.levelDown();
-    }
+    // pieworkplace changed: disable level up
+    // while (!this.isMaxLevel() && this.currentExp() >= this.nextLevelExp()) {
+    //     this.levelUp();
+    // }
+    // while (this.currentExp() < this.currentLevelExp()) {
+    //     this.levelDown();
+    // }
     if (show && this._level > lastLevel) {
         this.displayLevelUp(this.findNewSkills(lastSkills));
     }
@@ -4173,7 +4177,9 @@ Game_Actor.prototype.showRemovedStates = function() {
 };
 
 Game_Actor.prototype.stepsForTurn = function() {
-    return 20;
+    // pieworkplace changed: steps for poison
+    return 1;
+    // return 20;
 };
 
 Game_Actor.prototype.turnEndOnMap = function() {

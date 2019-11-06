@@ -116,7 +116,9 @@ Window_Base.prototype.update = function() {
 
 Window_Base.prototype.updateOpen = function() {
     if (this._opening) {
-        this.openness += 32;
+        // pieworkplace changed: open speed
+        this.openness += 20;
+        // this.openness += 32;
         if (this.isOpen()) {
             this._opening = false;
         }
@@ -125,7 +127,9 @@ Window_Base.prototype.updateOpen = function() {
 
 Window_Base.prototype.updateClose = function() {
     if (this._closing) {
-        this.openness -= 32;
+        // pieworkplace changed: close speed
+        this.openness -= 20;
+        // this.openness -= 32;
         if (this.isClosed()) {
             this._closing = false;
         }
@@ -1478,10 +1482,15 @@ function Window_Help() {
 Window_Help.prototype = Object.create(Window_Base.prototype);
 Window_Help.prototype.constructor = Window_Help;
 
-Window_Help.prototype.initialize = function(numLines) {
+Window_Help.prototype.initialize = function(numLines, changePosition) {
     var width = Graphics.boxWidth;
     var height = this.fittingHeight(numLines || 2);
-    Window_Base.prototype.initialize.call(this, 0, 0, width, height);
+    // pieworkplace: change help window position
+    if (changePosition) {
+		Window_Base.prototype.initialize.call(this, 48, Graphics.boxHeight * 0.25, width - 96, height);
+    } else {
+    	Window_Base.prototype.initialize.call(this, 0, 0, width, height);
+    }
     this._text = '';
 };
 
@@ -2672,7 +2681,10 @@ Window_Options.prototype.makeCommandList = function() {
 
 Window_Options.prototype.addGeneralOptions = function() {
     this.addCommand(TextManager.alwaysDash, 'alwaysDash');
-    this.addCommand(TextManager.commandRemember, 'commandRemember');
+    // pieworkplace changed: delete this option
+    // this.addCommand(TextManager.commandRemember, 'commandRemember');
+    // pieworkplace added: auto battle
+    this.addCommand(TextManager.autoBattle, 'autoBattle');
 };
 
 Window_Options.prototype.addVolumeOptions = function() {
@@ -5460,10 +5472,15 @@ Window_BattleStatus.prototype = Object.create(Window_Selectable.prototype);
 Window_BattleStatus.prototype.constructor = Window_BattleStatus;
 
 Window_BattleStatus.prototype.initialize = function() {
-    var width = this.windowWidth();
-    var height = this.windowHeight();
-    var x = Graphics.boxWidth - width;
-    var y = Graphics.boxHeight - height;
+    // pieworkplace changed: remove status window
+    // var width = this.windowWidth();
+    // var height = this.windowHeight();
+    // var x = Graphics.boxWidth - width;
+    // var y = Graphics.boxHeight - height;
+    width = 0;
+    height = 0;
+    x = 0;
+    y = 0;
     Window_Selectable.prototype.initialize.call(this, x, y, width, height);
     this.refresh();
     this.openness = 0;

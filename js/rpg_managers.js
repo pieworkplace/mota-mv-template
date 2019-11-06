@@ -467,6 +467,8 @@ function ConfigManager() {
 
 ConfigManager.alwaysDash        = false;
 ConfigManager.commandRemember   = false;
+// pieworkplace added
+ConfigManager.autoBattle = false;
 
 Object.defineProperty(ConfigManager, 'bgmVolume', {
     get: function() {
@@ -530,6 +532,8 @@ ConfigManager.makeData = function() {
     var config = {};
     config.alwaysDash = this.alwaysDash;
     config.commandRemember = this.commandRemember;
+    // pieworkplace added
+    config.autoBattle = this.autoBattle;
     config.bgmVolume = this.bgmVolume;
     config.bgsVolume = this.bgsVolume;
     config.meVolume = this.meVolume;
@@ -540,6 +544,8 @@ ConfigManager.makeData = function() {
 ConfigManager.applyData = function(config) {
     this.alwaysDash = this.readFlag(config, 'alwaysDash');
     this.commandRemember = this.readFlag(config, 'commandRemember');
+    // pieworkplace added
+    this.autoBattle = this.readFlag(config, 'autoBattle');
     this.bgmVolume = this.readVolume(config, 'bgmVolume');
     this.bgsVolume = this.readVolume(config, 'bgsVolume');
     this.meVolume = this.readVolume(config, 'meVolume');
@@ -630,17 +636,17 @@ StorageManager.backupExists = function(savefileId) {
 };
 
 StorageManager.cleanBackup = function(savefileId) {
-	if (this.backupExists(savefileId)) {
-		if (this.isLocalMode()) {
-			var fs = require('fs');
+    if (this.backupExists(savefileId)) {
+        if (this.isLocalMode()) {
+            var fs = require('fs');
             var dirPath = this.localFileDirectoryPath();
             var filePath = this.localFilePath(savefileId);
             fs.unlinkSync(filePath + ".bak");
-		} else {
-		    var key = this.webStorageKey(savefileId);
-			localStorage.removeItem(key + "bak");
-		}
-	}
+        } else {
+            var key = this.webStorageKey(savefileId);
+            localStorage.removeItem(key + "bak");
+        }
+    }
 };
 
 StorageManager.restoreBackup = function(savefileId) {
@@ -1659,6 +1665,8 @@ TextManager.command = function(commandId) {
 };
 
 TextManager.message = function(messageId) {
+    // pieworkplace added: auto battle string
+    $dataSystem.terms.messages['autoBattle'] = '自动战斗'
     return $dataSystem.terms.messages[messageId] || '';
 };
 
@@ -1713,6 +1721,8 @@ Object.defineProperties(TextManager, {
     sell            : TextManager.getter('command', 25),
     alwaysDash      : TextManager.getter('message', 'alwaysDash'),
     commandRemember : TextManager.getter('message', 'commandRemember'),
+    // pieworkplace added
+    autoBattle      : TextManager.getter('message', 'autoBattle'),
     bgmVolume       : TextManager.getter('message', 'bgmVolume'),
     bgsVolume       : TextManager.getter('message', 'bgsVolume'),
     meVolume        : TextManager.getter('message', 'meVolume'),
@@ -2559,7 +2569,7 @@ BattleManager.invokeCounterAttack = function(subject, target) {
 };
 
 BattleManager.invokeMagicReflection = function(subject, target) {
-	this._action._reflectionTarget = target;
+    this._action._reflectionTarget = target;
     this._logWindow.displayReflection(target);
     this._action.apply(subject);
     this._logWindow.displayActionResults(target, subject);
@@ -2631,13 +2641,14 @@ BattleManager.checkAbort = function() {
 };
 
 BattleManager.processVictory = function() {
-    $gameParty.removeBattleStates();
+    // pieworkplace fix: battle states removed after battle
+    // $gameParty.removeBattleStates();
     $gameParty.performVictory();
     this.playVictoryMe();
     this.replayBgmAndBgs();
     this.makeRewards();
-    this.displayVictoryMessage();
-    this.displayRewards();
+    // this.displayVictoryMessage();
+    // this.displayRewards();
     this.gainRewards();
     this.endBattle(0);
 };
@@ -2697,6 +2708,16 @@ BattleManager.updateBattleEnd = function() {
             $gameParty.reviveBattleMembers();
             SceneManager.pop();
         } else {
+            // pieworkplace added: sleep before gameover to acknowledge player he died
+            function sleep(milliseconds) {
+              var start = new Date().getTime();
+              for (var i = 0; i < 1e7; i++) {
+                if ((new Date().getTime() - start) > milliseconds){
+                  break;
+                }
+              }
+            }
+            sleep(1000);
             SceneManager.goto(Scene_Gameover);
         }
     } else {
@@ -2717,7 +2738,8 @@ BattleManager.displayVictoryMessage = function() {
 };
 
 BattleManager.displayDefeatMessage = function() {
-    $gameMessage.add(TextManager.defeat.format($gameParty.name()));
+    // pieworkplace changed: dismiss defeat message
+    // $gameMessage.add(TextManager.defeat.format($gameParty.name()));
 };
 
 BattleManager.displayEscapeSuccessMessage = function() {

@@ -190,6 +190,16 @@ Scene_Base.prototype.startFadeIn = function(duration, white) {
     this.createFadeSprite(white);
     this._fadeSign = 1;
     this._fadeDuration = duration || 30;
+    // pieworkplace changed: fade out from battle to gameover
+    if (SceneManager.isNextScene(Scene_Gameover)){
+        this._fadeSprite.opacity = 255;
+        return;
+    }
+    // pieworkplace changed: remove fade out from battle
+    if (SceneManager.isPreviousScene(Scene_Battle)){
+        this._fadeSprite.opacity = 0;
+        return;
+    }
     this._fadeSprite.opacity = 255;
 };
 
@@ -239,6 +249,15 @@ Scene_Base.prototype.createFadeSprite = function(white) {
  */
 Scene_Base.prototype.updateFade = function() {
     if (this._fadeDuration > 0) {
+        // pieworkplace added: for faster encounter, remove fade in/out in battle
+        if (SceneManager.isNextScene(Scene_Gameover)){
+            // pieworkplace added: exempt gameover
+        }else if (SceneManager.isNextScene(Scene_Battle) || (SceneManager._scene instanceof Scene_Battle)){
+            this._fadeDuration = 0;
+            this._fadeSprite.opacity = 0;
+            return;
+        }
+
         var d = this._fadeDuration;
         if (this._fadeSign > 0) {
             this._fadeSprite.opacity -= this._fadeSprite.opacity / d;
@@ -864,7 +883,9 @@ Scene_Map.prototype.updateEncounterEffect = function() {
             this.snapForBattleBackground();
             this.startFlashForEncounter(speed / 2);
         }
-        $gameScreen.setZoom(zoomX, zoomY, q);
+        // pieworkplace changed, remove zoom
+        $gameScreen.setZoom(zoomX, zoomY, 1);
+        // $gameScreen.setZoom(zoomX, zoomY, q);
         if (n === Math.floor(speed / 6)) {
             this.startFlashForEncounter(speed / 2);
         }
@@ -882,12 +903,16 @@ Scene_Map.prototype.snapForBattleBackground = function() {
 };
 
 Scene_Map.prototype.startFlashForEncounter = function(duration) {
+    // pieworkplace changed: remove flash
+    return;
     var color = [255, 255, 255, 255];
     $gameScreen.startFlash(color, duration);
 };
 
 Scene_Map.prototype.encounterEffectSpeed = function() {
-    return 60;
+    // pieworkplace changed: faster encounter
+    return 2;
+    //return 60;
 };
 
 //-----------------------------------------------------------------------------
@@ -932,7 +957,7 @@ Scene_MenuBase.prototype.setBackgroundOpacity = function(opacity) {
 };
 
 Scene_MenuBase.prototype.createHelpWindow = function() {
-    this._helpWindow = new Window_Help();
+    this._helpWindow = new Window_Help(2, true);
     this.addWindow(this._helpWindow);
 };
 
@@ -1768,6 +1793,19 @@ Scene_Load.prototype.onSavefileOk = function() {
 };
 
 Scene_Load.prototype.onLoadSuccess = function() {
+    // pieworkplace added: every time we load, change enemy property 1 -> 0
+    for (var i = 1; i < $dataEnemies.length; i++){
+        if ($dataEnemies[i].params[2] === 1){
+        $dataEnemies[i].params[2] = 0;}
+        if ($dataEnemies[i].params[3] === 1){
+        $dataEnemies[i].params[3] = 0;}
+        if ($dataEnemies[i].params[4] === 1){
+        $dataEnemies[i].params[4] = 0;}
+        if ($dataEnemies[i].params[5] === 1){
+        $dataEnemies[i].params[5] = 0;}
+    }
+    // pieworkplace added: refresh enemy data every time we load
+    $gameTemp.reserveCommonEvent(12);
     SoundManager.playLoad();
     this.fadeOutAll();
     this.reloadMapIfUpdated();

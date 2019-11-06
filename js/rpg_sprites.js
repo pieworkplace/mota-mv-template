@@ -1064,6 +1064,8 @@ Sprite_Enemy.prototype.startBlink = function() {
 
 Sprite_Enemy.prototype.startCollapse = function() {
     this._effectDuration = 32;
+    // pieworkplace changed: faster enemy disappear
+    this._effectDuration = 3;
     this._appeared = false;
 };
 
@@ -1547,7 +1549,9 @@ Sprite_Damage.prototype.createDigits = function(baseRow, value) {
 Sprite_Damage.prototype.createChildSprite = function() {
     var sprite = new Sprite();
     sprite.bitmap = this._damageBitmap;
-    sprite.anchor.x = 0.5;
+    // pieworkplace changed: damage position
+    // sprite.anchor.x = 0.5;
+    sprite.anchor.x = 0;
     sprite.anchor.y = 1;
     sprite.y = -40;
     sprite.ry = sprite.y;
@@ -1645,7 +1649,9 @@ Sprite_StateIcon.prototype.update = function() {
 };
 
 Sprite_StateIcon.prototype.animationWait = function() {
-    return 40;
+    // pieworkplace changed: dont know what's this. make it faster anyway
+    return 20;
+    //return 40;
 };
 
 Sprite_StateIcon.prototype.updateIcon = function() {
